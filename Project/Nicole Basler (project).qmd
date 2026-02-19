@@ -28,7 +28,11 @@ install.packages("dyplr")
 (note what you did woman to clean your data)
 
 ```{r}
-1 + 1
+library(tidyverse)
+view(nsf_terminations)
+tibble(nsf_terminations)
+
+
 ```
 
 You can add options to executable code like this
@@ -43,6 +47,8 @@ The `echo: false` option disables the printing of code (only output is displayed
 ## Tables
 
 ```{r}
+library(tidyverse)
+tibble()
 
 ```
 
@@ -51,5 +57,31 @@ The `echo: false` option disables the printing of code (only output is displayed
 ## Plotting
 
 ```{r}
+ggplot(nsf_terminations) + 
++     geom_bar(nsf_terminations = nsf_terminations, aes(x = project_title, fill = org_state)) +
++     scale_fill_viridis(discrete = T, option = "E") +
++     facet_wrap(~ org_state)
+```
 
+```{r}
+national_register_listed_20250624 <- national_register_listed_20250624 %>% 
+  +     filter(org_state == c("IL", "MO","IN", "MI", "WI", "KY") %>% 
+  +     select(project_title, org_state, award_type, grant_number, nsf_program_name, grant_number, division, org_name, org_district) %>%
+  +     mutate(
+    +         org_name = case_match(
+      +             org_name,
+      +             "BUILDING" ~ "building", 
+      +             "DISTRICT" ~ "district", 
+      +             "OBJECT" ~ 'object', 
+      +             "SITE" ~ 'site', 
+      +             "STRUCTURE" ~ 'structure'), 
+    +         across(
+      +             c(IntSig, LocalSig, NatSig, StateSig), 
+      +             ~ case_match(
+        +                 .x,
+        +                 "False" ~ F, 
+        +                 "True" ~ T)
+      +         )
+    +     ) %>% 
+  +     droplevels()
 ```
