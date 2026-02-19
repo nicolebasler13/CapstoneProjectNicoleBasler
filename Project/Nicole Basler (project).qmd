@@ -1,0 +1,55 @@
+---
+title: "Capstone Project"
+author: "Nicole Basler"
+format: html
+editor: visual
+---
+
+## Data
+
+```{r}
+
+nsf_terminations <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-05-06/nsf_terminations.csv')
+```
+
+## Packages
+
+```{r}
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("dyplr")
+
+```
+
+#possibly add more packages to make life easier.
+
+## Data Cleaning
+
+(note what you did woman to clean your data)
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+## Tables
+
+```{r}
+
+```
+
+## 
+
+## Plotting
+
+```{r}
+
+```
