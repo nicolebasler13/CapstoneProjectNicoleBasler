@@ -1,0 +1,28 @@
+
+
+```{r}
+nsf_terminations %>% 
+   count(org_name) %>%
+   top_n(40)
+```
+
+Missouri, Kentucky, Indiana, Wisconsin, Illinois
+
+```{r}
+df <- nsf_terminations %>% 
+  filter(org_state == c("MO", "KY", "IN", "WI", "IL"))
+```
+
+```{r}
+df <- nsf_terminations %>% 
+  mutate(caliNotCali = ifelse(org_state == "CA", "Cali", "Not Cali"))
+```
+
+```{r}
+private <- c("Harvard University", "Howard University", "Cornell University", "George Mason University")
+
+df2 <- df %>% 
+  mutate(privatePublic = ifelse(org_name == c("Harvard University", "Howard University", "Cornell University", "George Mason University"), 'private', 'public'))
+```
+
+
