@@ -61,6 +61,11 @@ ggplot(nsf_terminations) +
 +     geom_bar(nsf_terminations = nsf_terminations, aes(x = project_title, fill = org_state)) +
 +     scale_fill_viridis(discrete = T, option = "E") +
 +     facet_wrap(~ org_state)
+
+```
+
+```{r}
+ggplot(nsf_terminations) + geom_(fill this) (nsf_terminations = nsf_terminations, aes(x= grant_number , y= directorate_abbrev, fill = org_state))
 ```
 
 ```{r}
@@ -85,3 +90,5 @@ national_register_listed_20250624 <- national_register_listed_20250624 %>%
     +     ) %>% 
   +     droplevels()
 ```
+
+ggplot(nsf_terminations) + geom_dotplot (nsf_terminations = nsf_terminations, aes(x= award_type, y= directorate_abbrev, fill = org_state)
