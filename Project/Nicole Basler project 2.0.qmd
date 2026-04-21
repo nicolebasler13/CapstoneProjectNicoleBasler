@@ -43,6 +43,8 @@ look at gotta anova them all example
 
 fix the public and private list and such
 
+spat raster
+
 # Data
 
 ```{r}
