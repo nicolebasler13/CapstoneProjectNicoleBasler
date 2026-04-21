@@ -41,6 +41,8 @@ Cail VS the world....
 
 look at gotta anova them all example
 
+fix the public and private list and such
+
 # Data
 
 ```{r}
