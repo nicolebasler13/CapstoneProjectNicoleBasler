@@ -39,6 +39,8 @@ H2 private VSpublic money lost
 
 Cail VS the world....
 
+look at gotta anova them all example
+
 # Data
 
 ```{r}
