@@ -15,6 +15,30 @@ install.packages("here")
 
 ```
 
+Note typo in the install packages
+
+sort org names and find code for that!
+
+in put here and runn tta
+
+parant t test and wilcox t test
+
+pulic has lost that much and private has lost that much avrage
+
+finnish something stream line
+
+pick two Vat
+
+Reminder to push this code after with the .. x
+
+add files to separate the code.
+
+H1 make code for states compared to sates with money and amount of grants lost
+
+H2 private VSpublic money lost
+
+Cail VS the world....
+
 # Data
 
 ```{r}
@@ -119,6 +143,7 @@ ggplot() +
     plot.subtitle = element_text(hjust = 0.5),
     axis.title = element_text(face = "bold"),
     legend.position = "right") + labs(title = "Grants Terminated By Directorate", subtitle = "NSF_Terminations"  , x = "counts of grants terminated", y = "Directorate Abbrev") + theme_get()
+#I want to know how to remove the default colors from this code 
 ```
 
 ```{r}
@@ -129,10 +154,11 @@ ggplot() +
     axis.title = element_text(face = "bold"),
     legend.position = "right") + labs(title = " Grant Money Lost By state", subtitle = "NSF_Terminations"  , x = "Grant Money", y = "State Abbrev") + theme_get()
 #funky plot but intresting 
+#also how to remove the scientfic notation at the bottom
 ```
 
 ```{r}
-ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state)) +
+ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, fill + color = org_state)) +
   geom_segment(aes(x = org_state, xend = org_state, y = 0, yend = n),
              linewidth = 1.2) +
   geom_point(size = 6) +
@@ -163,7 +189,30 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state
 
 ```
 
-# Counts
+```{r}
+ggplot() + 
+  geom_col( data = top5states_table, aes(x = org_state , y = n, fill = org_state)) + geom_pointrange() +
+  theme_set() +
+   facet_wrap(~org_state, ncol(100)) + labs(
+    title = "Top 5 States",
+    subtitle = "NSF Grant Terminations ",
+    x = "States",
+    y = "Number Grants Terimanted "
+  ) + theme (
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 12),
+    plot.subtitle = element_text(hjust = 0.5, size = 10),
+    axis.title = element_text(face = "bold", size = 10),
+    axis.text.x = element_text(size = 8 ) ,
+    legend.background = element_rect(color = "black", fill = "white"),
+    legend.key = element_rect(color = "black", fill = "white") ,
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 9),
+    legend.key.size = unit(0.3, "cm"),
+    plot.margin = margin(10,10,10),
+    legend.position = "right")
+```
+
+#  Counts
 
 ```{r}
 {r}
@@ -256,7 +305,7 @@ summary()
 
 ```
 
-# Code Cannibalized/The Code I'm Hoarding 
+# Code Cannibalized/The Code I'm Hoarding
 
 ```{r}
 ggplot() + 
