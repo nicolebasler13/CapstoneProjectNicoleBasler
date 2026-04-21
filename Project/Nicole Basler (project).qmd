@@ -14,6 +14,14 @@ nsf_terminations <- readr::read_csv('https://raw.githubusercontent.com/rfordatas
 
 ## Packages
 
+ll.packages("tidyverse")
+
+install.packages("ggplot2")
+
+install.packages("dyplr")
+
+install.packages("here")
+
 ```{r}
 install.packages("tidyverse")
 install.packages("ggplot2")
@@ -34,80 +42,93 @@ install.packages("here")
 library(tidyverse)
 view(nsf_terminations)
 tibble(nsf_terminations)
+#this just shows the whole dataset into a table and how to view the data.
 
 
 ```
 
 ```{r}
 StatesMoney_table <- tibble(nsf_terminations$org_state,nsf_terminations$usaspending_obligated)
+view(StatesMoney_table)
+#this just creates a table just foucousing on how much money each state recived from grants that the US spent or was spending. 
 ```
 
 ```{r}
 DirectorateAbbrev_Table <- tibble(nsf_terminations$directorate_abbrev,nsf_terminations$usaspending_obligated)
-
+view(DirectorateAbbrev_Table)
+#this just creates a table in relation to the Direoctrates and the money that where connected with thier programs.
 ```
 
 ```{r}
 df <- nsf_terminations %>% 
   filter(org_state == c("MO", "KY", "IN", "WI", "IL"))
+view(df)
+#this creates a data frame that is only foucosuing on near by states that surround illnois to lead to a future comaparison. 
 ```
 
 ```{r}
-df <- nsf_terminations %>% 
+dfcali <- nsf_terminations %>% 
   mutate(caliNotCali = ifelse(org_state == "CA", "Cali", "Not Cali"))
+view(dfcali)
+#this creates a data frame that only foucouses on California compared to the rest of the united states by separating the sates data that are not california to data that is from california.
 ```
 
 ```{r}
-df2 <- df %>% 
+dftype <- df %>% 
   mutate(privatePublic = ifelse(org_name == c("Harvard University", "Howard University", "Cornell University", "George Mason University"), 'private', 'public'))
+view(dftype)
+# this creates a dataset athet is looking into private univertities Vs public univertites
 ```
 
 ```{r}
 private <- c("Harvard University", "Howard University", "Cornell University", "George Mason University")
+view(private)
+#this creates the speicfics of what is private for the universtites. 
 ```
 
 ```{r}
-nsf_terminations %>% 
+ Top40_org <- nsf_terminations %>% 
    count(org_name) %>%
    top_n(40)
+view(Top40_org)
+#this creates a data set foucosuing on the top 40 orgs that where mostly impacted by the NSF terminations.
 ```
 
 ```{r}
 top40states_table <- nsf_terminations %>% 
    count(org_state) %>%
    top_n(40)
+view(top40states_table)
+#this creates a data set foucosuing on the top 40 states that where mostly impacted by the NSF terminations.
 ```
 
 ```{r}
 top5states_table <- nsf_terminations %>% 
    count(org_state) %>%
    top_n(5)
+view(top5states_table)
+#this creates a data set foucosuing on the top 5 states that where mostly impacted by the NSF terminations.
 ```
 
 ```{r}
 Directorate_table <- nsf_terminations %>% 
    count(directorate_abbrev) %>%
    top_n(5)
+view(Directorate_table)
+#this creates a data set foucosuing on the top 5 Directorates that where mostly impacted by the NSF terminations.
 ```
-
-You can add options to executable code like this
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
 
 ## Tables
 
 ```{r}
 str(DirectorateAbbrev_Table)
+#what dose this do???
 ```
 
 ```{r}
 nsf_terminations
 class(nsf_terminations)
+#what dose class do??
 ```
 
 ```{r}
@@ -121,7 +142,7 @@ class(nsf_terminations)
 ```{r}
 library(tidyverse)
 tibble()
-
+#this function creates a table
 ```
 
 | Col1 | Col2 | Col3 |
@@ -137,11 +158,12 @@ ggplot(nsf_terminations) +
 +     geom_bar(nsf_terminations = nsf_terminations, aes(x = project_title, fill = org_state)) +
 +     scale_fill_viridis(discrete = T, option = "E") +
 +     facet_wrap(~ org_state)
-
+#plot dose not work queen
 ```
 
 ```{r}
 ggplot(nsf_terminations) + geom_(fill this) (nsf_terminations = nsf_terminations, aes(x= grant_number , y= directorate_abbrev, fill = org_state))
+#plot dose not work queen
 ```
 
 ```{r}
@@ -165,6 +187,7 @@ national_register_listed_20250624 <- national_register_listed_20250624 %>%
       +         )
     +     ) %>% 
   +     droplevels()
+  #plot does not work queen Figure it out 
 ```
 
 ggplot(nsf_terminations) + geom_dotplot (nsf_terminations = nsf_terminations, aes(x= award_type, y= directorate_abbrev, fill = org_state)
@@ -186,6 +209,7 @@ ggplot() +
     axis.title = element_text(face = "bold"),
     legend.position = "right"
   )
+#cannabalized plot 1 
 ```
 
 Directorate Data
@@ -198,7 +222,7 @@ ggplot() +
     axis.title = element_text(face = "bold"),
     legend.position = "right") + labs(title = "Grants Terminated By Directorate", subtitle = "NSF_Terminations"  , x = "counts of grants terminated", y = "Directorate Abbrev") + theme_get()
   
-
+#use of Cannabalized plot 1 (i want to make it orange)
 ```
 
 mass shape test
@@ -206,6 +230,7 @@ mass shape test
 ```{r}
 mass_shaptest <- shapiro.test(Directorate_table$directorate_abbrev, Directorate_table$n)
 mass_shaptest
+#trying to complete test below...
 ```
 
 Correlation Test
@@ -273,7 +298,7 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, size = n)) +
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 13)
   )
-
+#i hate this plot needs tweaked
 ```
 
 ```{r}
@@ -282,18 +307,20 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, size = n)) +
 
 ```{r}
 ggplot(Directorate_table) + geom_histogram (Directorate_table = Directorate_table, aes(x= n , fill = dierctorate_abbrev))
+#plot that dont work queen
 ```
 
-```{}
+```         
 ```
 
 ```{r}
 ggplot(Directorate_table, aes(x = directorate_abbrev, fill = n)) + geom_bar()
-
+#weird plot
 ```
 
 ```{r}
 + labs( title = "Grants Terminated By Directorate", subtitle x = "counts of grants terminated ", y = "Directorate Abbrev"))
+  #plot that dont work queen 
 ```
 
 ```{r}
@@ -303,7 +330,7 @@ ggplot() +
     plot.subtitle = element_text(hjust = 0.5),
     axis.title = element_text(face = "bold"),
     legend.position = "right") + labs(title = " Grant Money Lost By state", subtitle = "NSF_Terminations"  , x = "Grant Money", y = "State Abbrev") + theme_get()
-
+#funky plot but intresting 
 ```
 
 ```{r}
@@ -328,7 +355,7 @@ ggplot(State_count, aes(x = reorder(org_state, n), y = n)) +
   ) +
   ylim(0, max(State_count$n) + 20)
 
-If you want something even more visually interesting, this bubble plot can work too:
+#funky plot i sorta like it 
 
 library(ggplot2)
 
@@ -353,7 +380,7 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, size = n)) +
   )
 
 
-
+#funky plot 
 ```
 
 ```{r}
@@ -386,15 +413,16 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state
   ) +
   ylim(0, max(top5states_table$n) + 20)
 
-
+#LOve this plot lollipop
 ```
 
 ```{r}
 top5state_counts <- c(CA = 112, MA = 51, NY = 69, PA = 45, TX = 73)
 
 chisq.test(state_counts)
+#test
 ```
 
 ```         
-	Chi-squared test for given probabilities  data:  state_counts X-squared = 39.429, df = 4, p-value = 5.682e-08 
+    Chi-squared test for given probabilities  data:  state_counts X-squared = 39.429, df = 4, p-value = 5.682e-08 
 ```

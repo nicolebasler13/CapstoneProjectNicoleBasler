@@ -1,0 +1,257 @@
+---
+title: "Nicole Basler Project 2.0"
+author: "Nicole Basler"
+format: html
+editor: visual
+---
+
+# Packages
+
+```{r}
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("dyplr")
+install.packages("here")
+
+```
+
+# Data
+
+```{r}
+nsf_terminations <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-05-06/nsf_terminations.csv')
+```
+
+# Data Manipulation/Cleaning/Tables
+
+```{r}
+library(tidyverse)
+view(nsf_terminations)
+tibble(nsf_terminations)
+#this just shows the whole dataset into a table and how to view the data.
+```
+
+below is the creation of seprate data tables in goal to create graphs with and run tests on.
+
+```{r}
+StatesMoney_table <- tibble(nsf_terminations$org_state,nsf_terminations$usaspending_obligated)
+view(StatesMoney_table)
+#this just creates a table just foucousing on how much money each state recived from grants that the US spent or was spending. 
+```
+
+```{r}
+DirectorateAbbrev_Table <- tibble(nsf_terminations$directorate_abbrev,nsf_terminations$usaspending_obligated)
+view(DirectorateAbbrev_Table)
+#this just creates a table in relation to the Direoctrates and the money that where connected with thier programs.
+```
+
+```{r}
+Top40_org <- nsf_terminations %>% 
+   count(org_name) %>%
+   top_n(40)
+view(Top40_org)
+#this creates a data set foucosuing on the top 40 orgs that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+top40states_table <- nsf_terminations %>% 
+   count(org_state) %>%
+   top_n(40)
+view(top40states_table)
+#this creates a data set foucosuing on the top 40 states that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+top5states_table <- nsf_terminations %>% 
+   count(org_state) %>%
+   top_n(5)
+view(top5states_table)
+#this creates a data set foucosuing on the top 5 states that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+Directorate_table <- nsf_terminations %>% 
+   count(directorate_abbrev) %>%
+   top_n(5)
+view(Directorate_table)
+#this creates a data set foucosuing on the top 5 Directorates that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+Cash_table <- tibble(nsf_terminations$org_state,nsf_terminations$usaspending_obligated)
+#creates a comparison on money spent and the states 
+```
+
+below there are a few pieces of code ?that I might possibly include In my report i gotta figure out how I will present it in a graph and run test on it.
+
+```{r}
+df <- nsf_terminations %>% 
+  filter(org_state == c("MO", "KY", "IN", "WI", "IL"))
+view(df)
+#this creates a data frame that is only foucosuing on near by states that surround illnois to lead to a future comaparison. 
+```
+
+```{r}
+dfcali <- nsf_terminations %>% 
+  mutate(caliNotCali = ifelse(org_state == "CA", "Cali", "Not Cali"))
+view(dfcali)
+#this creates a data frame that only foucouses on California compared to the rest of the united states by separating the sates data that are not california to data that is from california.
+```
+
+```{r}
+dftype <- df %>% 
+  mutate(privatePublic = ifelse(org_name == c("Harvard University", "Howard University", "Cornell University", "George Mason University"), 'private', 'public'))
+view(dftype)
+# this creates a dataset athet is looking into private univertities Vs public univertites
+```
+
+```{r}
+private <- c("Harvard University", "Howard University", "Cornell University", "George Mason University")
+view(private)
+#this creates the speicfics of what is private for the universtites. 
+```
+
+# Plots
+
+```{r}
+ggplot() + 
+  geom_col(data = Directorate_table, aes(x = n, y = directorate_abbrev, fill = directorate_abbrev, color = directorate_abbrev))  + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    legend.position = "right") + labs(title = "Grants Terminated By Directorate", subtitle = "NSF_Terminations"  , x = "counts of grants terminated", y = "Directorate Abbrev") + theme_get()
+```
+
+```{r}
+ggplot() + 
+  geom_histogram(data = nsf_terminations, aes(x = usaspending_obligated, fill = org_state, color = org_state))  + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    legend.position = "right") + labs(title = " Grant Money Lost By state", subtitle = "NSF_Terminations"  , x = "Grant Money", y = "State Abbrev") + theme_get()
+#funky plot but intresting 
+```
+
+```{r}
+ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state)) +
+  geom_segment(aes(x = org_state, xend = org_state, y = 0, yend = n),
+             linewidth = 1.2) +
+  geom_point(size = 6) +
+  geom_text(aes(label = n), hjust = -0.3, size = 5, show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    title = "Top 5 States by Count in Grant Terminatons",
+    x = "State",
+    y = "Count",
+    color = "State"
+  ) +
+  scale_color_manual(values = c(
+    "CA" = "tomato",
+    "MA" = "steelblue",
+    "NY" = "darkorchid",
+    "PA" = "seagreen",
+    "TX" = "goldenrod"
+  )) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 13),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 11)
+  ) +
+  ylim(0, max(top5states_table$n) + 20)
+
+```
+
+# Counts
+
+```{r}
+{r}
+ State_count <- nsf_terminations %>% 
+ count(org_state)
+```
+
+# Tests
+
+I NEED HELP HOW TO DO THE TESTS BETTER PLEASE HELP AND IGNORE ANY TPYOS!! thanks you're the best! :)
+
+```{r}
+mass_shaptest <- shapiro.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+mass_shaptest
+```
+
+```{r}
+cor.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+```
+
+```{r}
+chisq.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+
+```
+
+```{r}
+top5state_counts <- c(CA = 112, MA = 51, NY = 69, PA = 45, TX = 73)
+
+chisq.test(state_counts)
+#this test was intresting 
+```
+
+```{r}
+
+```
+
+below I plan to oraginze and look over more of my hypothosises to create a more functional code space just to focous and run through each of my hypothosisies indviually rather than all jumbled up at the top or below these sections to remain organized through out my scratch paper above and below.
+
+# H1
+
+```{r}
+
+```
+
+# H2
+
+```{r}
+
+```
+
+# H3
+
+```{r}
+
+```
+
+# H4
+
+```{r}
+
+```
+
+# H5
+
+```{r}
+
+```
+
+# Other Functions I Used
+
+```{r}
+str(nsf_terminations$org_state)
+#this function list out all the data in one variable i will do this to other varibles to Visualise them better
+
+```
+
+```{r}
+class(nsf_terminations$usaspending_obligated)
+#this will just tell me what type of data I am dealing with on a whim 
+```
+
+```{r}
+class(nsf_terminations)
+#this will help me explaib what the data set is. 
+```
+
+```{r}
+summary()
+#this function will just give me some more numeric data to work with through standar dev
+
+```
