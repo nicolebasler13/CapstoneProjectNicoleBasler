@@ -1,5 +1,3 @@
-
-
 ```{r}
 nsf_terminations %>% 
    count(org_name) %>%
@@ -24,5 +22,3 @@ private <- c("Harvard University", "Howard University", "Cornell University", "G
 df2 <- df %>% 
   mutate(privatePublic = ifelse(org_name == c("Harvard University", "Howard University", "Cornell University", "George Mason University"), 'private', 'public'))
 ```
-
-

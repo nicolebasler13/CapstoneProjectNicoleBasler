@@ -1,0 +1,428 @@
+---
+title: "Capstone Project"
+author: "Nicole Basler"
+format: html
+editor: visual
+---
+
+## Data
+
+```{r}
+
+nsf_terminations <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-05-06/nsf_terminations.csv')
+```
+
+## Packages
+
+ll.packages("tidyverse")
+
+install.packages("ggplot2")
+
+install.packages("dyplr")
+
+install.packages("here")
+
+```{r}
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("dyplr")
+install.packages("here")
+
+
+
+```
+
+#possibly add more packages to make life easier.
+
+## Data Cleaning
+
+(note what you did woman to clean your data)
+
+```{r}
+library(tidyverse)
+view(nsf_terminations)
+tibble(nsf_terminations)
+#this just shows the whole dataset into a table and how to view the data.
+
+
+```
+
+```{r}
+StatesMoney_table <- tibble(nsf_terminations$org_state,nsf_terminations$usaspending_obligated)
+view(StatesMoney_table)
+#this just creates a table just foucousing on how much money each state recived from grants that the US spent or was spending. 
+```
+
+```{r}
+DirectorateAbbrev_Table <- tibble(nsf_terminations$directorate_abbrev,nsf_terminations$usaspending_obligated)
+view(DirectorateAbbrev_Table)
+#this just creates a table in relation to the Direoctrates and the money that where connected with thier programs.
+```
+
+```{r}
+df <- nsf_terminations %>% 
+  filter(org_state == c("MO", "KY", "IN", "WI", "IL"))
+view(df)
+#this creates a data frame that is only foucosuing on near by states that surround illnois to lead to a future comaparison. 
+```
+
+```{r}
+dfcali <- nsf_terminations %>% 
+  mutate(caliNotCali = ifelse(org_state == "CA", "Cali", "Not Cali"))
+view(dfcali)
+#this creates a data frame that only foucouses on California compared to the rest of the united states by separating the sates data that are not california to data that is from california.
+```
+
+```{r}
+dftype <- df %>% 
+  mutate(privatePublic = ifelse(org_name == c("Harvard University", "Howard University", "Cornell University", "George Mason University"), 'private', 'public'))
+view(dftype)
+# this creates a dataset athet is looking into private univertities Vs public univertites
+```
+
+```{r}
+private <- c("Harvard University", "Howard University", "Cornell University", "George Mason University")
+view(private)
+#this creates the speicfics of what is private for the universtites. 
+```
+
+```{r}
+ Top40_org <- nsf_terminations %>% 
+   count(org_name) %>%
+   top_n(40)
+view(Top40_org)
+#this creates a data set foucosuing on the top 40 orgs that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+top40states_table <- nsf_terminations %>% 
+   count(org_state) %>%
+   top_n(40)
+view(top40states_table)
+#this creates a data set foucosuing on the top 40 states that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+top5states_table <- nsf_terminations %>% 
+   count(org_state) %>%
+   top_n(5)
+view(top5states_table)
+#this creates a data set foucosuing on the top 5 states that where mostly impacted by the NSF terminations.
+```
+
+```{r}
+Directorate_table <- nsf_terminations %>% 
+   count(directorate_abbrev) %>%
+   top_n(5)
+view(Directorate_table)
+#this creates a data set foucosuing on the top 5 Directorates that where mostly impacted by the NSF terminations.
+```
+
+## Tables
+
+```{r}
+str(DirectorateAbbrev_Table)
+#what dose this do???
+```
+
+```{r}
+nsf_terminations
+class(nsf_terminations)
+#what dose class do??
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+library(tidyverse)
+tibble()
+#this function creates a table
+```
+
+| Col1 | Col2 | Col3 |
+|------|------|------|
+|      |      |      |
+|      |      |      |
+|      |      |      |
+
+## Plotting
+
+```{r}
+ggplot(nsf_terminations) + 
++     geom_bar(nsf_terminations = nsf_terminations, aes(x = project_title, fill = org_state)) +
++     scale_fill_viridis(discrete = T, option = "E") +
++     facet_wrap(~ org_state)
+#plot dose not work queen
+```
+
+```{r}
+ggplot(nsf_terminations) + geom_(fill this) (nsf_terminations = nsf_terminations, aes(x= grant_number , y= directorate_abbrev, fill = org_state))
+#plot dose not work queen
+```
+
+```{r}
+national_register_listed_20250624 <- national_register_listed_20250624 %>% 
+  +     filter(org_state == c("IL", "MO","IN", "MI", "WI", "KY") %>% 
+  +     select(project_title, org_state, award_type, grant_number, nsf_program_name, grant_number, division, org_name, org_district) %>%
+  +     mutate(
+    +         org_name = case_match(
+      +             org_name,
+      +             "BUILDING" ~ "building", 
+      +             "DISTRICT" ~ "district", 
+      +             "OBJECT" ~ 'object', 
+      +             "SITE" ~ 'site', 
+      +             "STRUCTURE" ~ 'structure'), 
+    +         across(
+      +             c(IntSig, LocalSig, NatSig, StateSig), 
+      +             ~ case_match(
+        +                 .x,
+        +                 "False" ~ F, 
+        +                 "True" ~ T)
+      +         )
+    +     ) %>% 
+  +     droplevels()
+  #plot does not work queen Figure it out 
+```
+
+ggplot(nsf_terminations) + geom_dotplot (nsf_terminations = nsf_terminations, aes(x= award_type, y= directorate_abbrev, fill = org_state)
+
+```{r}
+ggplot() + 
+  geom_jitter(data = Directorate_table, aes(x = dire, y = bone_abundance, fill = taxa, color = taxa, shape = taxa )) +  
+  scale_color_manual(values = c('magenta', 'red','orange','green','purple')) +  geom_pointrange() +
+  theme_get() +
+  
+  facet_wrap(~ taxa) + labs(
+    title = "Bone Art and Abundance Count by Taxa",
+    subtitle = "BoneArt_Dataset",
+    x = "Art Count",
+    y = "Bone Abundance"
+  ) + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    legend.position = "right"
+  )
+#cannabalized plot 1 
+```
+
+Directorate Data
+
+```{r}
+ggplot() + 
+  geom_col(data = Directorate_table, aes(x = n, y = directorate_abbrev, fill = directorate_abbrev, color = directorate_abbrev))  + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    legend.position = "right") + labs(title = "Grants Terminated By Directorate", subtitle = "NSF_Terminations"  , x = "counts of grants terminated", y = "Directorate Abbrev") + theme_get()
+  
+#use of Cannabalized plot 1 (i want to make it orange)
+```
+
+mass shape test
+
+```{r}
+mass_shaptest <- shapiro.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+mass_shaptest
+#trying to complete test below...
+```
+
+Correlation Test
+
+```{r}
+cor.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+```
+
+Chisqr test
+
+```{r}
+chisq.test(Directorate_table$directorate_abbrev, Directorate_table$n)
+
+```
+
+Results
+
+```         
+Pearson's Chi-squared test  data: Directorate_table$directorate_abbrev and Directorate_table$n X-squared = 20, df = 16, p-value = 0.2202
+```
+
+States testing
+
+```         
+```
+
+```{r}
+ State_count <- nsf_terminations %>% 
+ count(org_state)
+```
+
+This code above just shows the amounts of grants that where terminated in each state.
+
+```{r}
+top5states_table <- nsf_terminations %>% 
+   count(org_state) %>%
+   top_n(5)
+```
+
+this just creates a table of the top 5 states that where most effected by the grant terminations.
+
+```{r}
+moneycount_table <- nsf_terminations %>% count(usaspending_obligated) %>% top_n(5)
+```
+
+this didnt work out like I wanted but its okay
+
+```{r}
+Cash_table <- tibble(nsf_terminations$org_state,nsf_terminations$usaspending_obligated)
+```
+
+```{r}
+ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, size = n)) +
+  geom_point(alpha = 0.8) +
+  geom_text(aes(label = n), vjust = -1) +
+  labs(
+    title = "Top 5 States by Count",
+    x = "State",
+    y = "Count",
+    size = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 13)
+  )
+#i hate this plot needs tweaked
+```
+
+```{r}
+
+```
+
+```{r}
+ggplot(Directorate_table) + geom_histogram (Directorate_table = Directorate_table, aes(x= n , fill = dierctorate_abbrev))
+#plot that dont work queen
+```
+
+```         
+```
+
+```{r}
+ggplot(Directorate_table, aes(x = directorate_abbrev, fill = n)) + geom_bar()
+#weird plot
+```
+
+```{r}
++ labs( title = "Grants Terminated By Directorate", subtitle x = "counts of grants terminated ", y = "Directorate Abbrev"))
+  #plot that dont work queen 
+```
+
+```{r}
+ggplot() + 
+  geom_histogram(data = nsf_terminations, aes(x = usaspending_obligated, fill = org_state, color = org_state))  + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title = element_text(face = "bold"),
+    legend.position = "right") + labs(title = " Grant Money Lost By state", subtitle = "NSF_Terminations"  , x = "Grant Money", y = "State Abbrev") + theme_get()
+#funky plot but intresting 
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(State_count, aes(x = reorder(org_state, n), y = n)) +
+  geom_segment(aes(x = org_state, xend = org_state, y = 0, yend = n),
+               linewidth = 1) +
+  geom_point(size = 6) +
+  geom_text(aes(label = n), hjust = -0.3, size = 5) +
+  coord_flip() +
+  labs(
+    title = "Top 5 States by Count",
+    x = "State",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 13)
+  ) +
+  ylim(0, max(State_count$n) + 20)
+
+#funky plot i sorta like it 
+
+library(ggplot2)
+
+```
+
+```{r}
+
+ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, size = n)) +
+  geom_point(alpha = 0.8) +
+  geom_text(aes(label = n), vjust = -1) +
+  labs(
+    title = "Top 5 States by Count",
+    x = "State",
+    y = "Count",
+    size = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 13)
+  )
+
+
+#funky plot 
+```
+
+```{r}
+ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state)) +
+  geom_segment(aes(x = org_state, xend = org_state, y = 0, yend = n),
+             linewidth = 1.2) +
+  geom_point(size = 6) +
+  geom_text(aes(label = n), hjust = -0.3, size = 5, show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    title = "Top 5 States by Count in Grant Terminatons",
+    x = "State",
+    y = "Count",
+    color = "State"
+  ) +
+  scale_color_manual(values = c(
+    "CA" = "tomato",
+    "MA" = "steelblue",
+    "NY" = "darkorchid",
+    "PA" = "seagreen",
+    "TX" = "goldenrod"
+  )) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 13),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 11)
+  ) +
+  ylim(0, max(top5states_table$n) + 20)
+
+#LOve this plot lollipop
+```
+
+```{r}
+top5state_counts <- c(CA = 112, MA = 51, NY = 69, PA = 45, TX = 73)
+
+chisq.test(state_counts)
+#test
+```
+
+```         
+    Chi-squared test for given probabilities  data:  state_counts X-squared = 39.429, df = 4, p-value = 5.682e-08 
+```
