@@ -16,6 +16,8 @@ install.packages("maps")
 install.packages("scales")
 install.packages("tidyr")
 install.packages("readr")
+install.packages("gt")
+install.packages("webshot2")
 ```
 
 # ***NSF DATA***
@@ -146,7 +148,175 @@ ggplot(top5states_table, aes(x = reorder(org_state, n), y = n, color = org_state
 ## TABLE: TOP 5 STATES
 
 ```{r}
+library(dplyr)
+library(gt)
 
+top5states_table <- nsf_terminations %>% 
+  filter(!is.na(org_state)) %>%
+  group_by(org_state) %>%
+  summarise(
+    Number_of_Terminated_Grants = n(),
+    Total_Money_Terminated = sum(usaspending_obligated, na.rm = TRUE),
+    Average_Money_Terminated = mean(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  slice_max(Number_of_Terminated_Grants, n = 5) %>%
+  arrange(desc(Number_of_Terminated_Grants))
+
+top5states_table_image <- top5states_table %>%
+  gt() %>%
+  tab_header(
+    title = "Top 5 States by NSF Grant Terminations",
+    subtitle = "Includes number of grants, total money terminated, and average amount per grant"
+  ) %>%
+  cols_label(
+    org_state = "State",
+    Number_of_Terminated_Grants = "Number of Terminated Grants",
+    Total_Money_Terminated = "Total Money Terminated",
+    Average_Money_Terminated = "Average Money Terminated"
+  ) %>%
+  fmt_currency(
+    columns = c(Total_Money_Terminated, Average_Money_Terminated),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  )
+
+gtsave(top5states_table_image, "top5states_table.png")
+```
+
+## TABLE: STATES
+
+```{r}
+library(dplyr)
+library(gt)
+
+# Step 1: Summarize the data
+StatesMoney_table <- nsf_terminations %>%
+  filter(
+    !is.na(org_state),
+    !is.na(usaspending_obligated)
+  ) %>%
+  group_by(org_state) %>%
+  summarise(
+    Number_of_Terminated_Grants = n(),
+    Total_Money_Lost = sum(usaspending_obligated, na.rm = TRUE),
+    Average_Money_Lost_Per_Grant = mean(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Total_Money_Lost))
+
+# Step 2: Split into two halves
+split_point <- ceiling(nrow(StatesMoney_table) / 2)
+
+left_half <- StatesMoney_table %>%
+  slice(1:split_point)
+
+right_half <- StatesMoney_table %>%
+  slice((split_point + 1):n())
+
+# Step 3: Make both halves the same length
+while (nrow(right_half) < nrow(left_half)) {
+  right_half <- right_half %>%
+    add_row(
+      org_state = NA,
+      Number_of_Terminated_Grants = NA,
+      Total_Money_Lost = NA,
+      Average_Money_Lost_Per_Grant = NA
+    )
+}
+
+# Step 4: Rename columns
+left_half <- left_half %>%
+  rename(
+    State_1 = org_state,
+    Grants_1 = Number_of_Terminated_Grants,
+    Total_Lost_1 = Total_Money_Lost,
+    Average_Lost_1 = Average_Money_Lost_Per_Grant
+  )
+
+right_half <- right_half %>%
+  rename(
+    State_2 = org_state,
+    Grants_2 = Number_of_Terminated_Grants,
+    Total_Lost_2 = Total_Money_Lost,
+    Average_Lost_2 = Average_Money_Lost_Per_Grant
+  )
+
+# Step 5: Add a blank spacer column between the two halves
+StatesMoney_two_column <- bind_cols(left_half) %>%
+  mutate(Spacer = "") %>%
+  bind_cols(right_half)
+
+# Step 6: Make the table
+StatesMoney_two_column_image <- StatesMoney_two_column %>%
+  gt() %>%
+  tab_header(
+    title = "NSF Grant Money Lost by State",
+    subtitle = "All states with total money lost and average amount lost per grant"
+  ) %>%
+  cols_label(
+    State_1 = "State",
+    Grants_1 = "# Grants",
+    Total_Lost_1 = "Total Lost",
+    Average_Lost_1 = "Avg / Grant",
+    Spacer = "",
+    State_2 = "State",
+    Grants_2 = "# Grants",
+    Total_Lost_2 = "Total Lost",
+    Average_Lost_2 = "Avg / Grant"
+  ) %>%
+  fmt_currency(
+    columns = c(Total_Lost_1, Average_Lost_1, Total_Lost_2, Average_Lost_2),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  sub_missing(
+    everything(),
+    missing_text = ""
+  ) %>%
+  cols_width(
+    State_1 ~ px(80),
+    Grants_1 ~ px(90),
+    Total_Lost_1 ~ px(140),
+    Average_Lost_1 ~ px(140),
+    Spacer ~ px(80),
+    State_2 ~ px(80),
+    Grants_2 ~ px(90),
+    Total_Lost_2 ~ px(140),
+    Average_Lost_2 ~ px(140)
+  ) %>%
+  tab_options(
+    table.width = px(1600),
+    table.font.size = px(14),
+    data_row.padding = px(8),
+    heading.title.font.size = px(24),
+    heading.subtitle.font.size = px(16),
+    column_labels.font.weight = "bold"
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  )
+
+# Step 7: Save as image
+gtsave(
+  StatesMoney_two_column_image,
+  "StatesMoney_two_column_readable.png",
+  vwidth = 1800,
+  vheight = 2000
+)
 ```
 
 ## TESTS:
@@ -203,6 +373,8 @@ Directorate_table <- nsf_terminations %>%
 
 ## DATA VIZ 3: TOP 5 DIRECTORATE
 
+***Note: the first graph created is the result I wanted.***
+
 ```{r}
 library(ggplot2)
 ggplot() + 
@@ -254,7 +426,37 @@ ggplot() +
 ## TABLE:
 
 ```{r}
+library(dplyr)
+library(gt)
 
+Directorate_table <- nsf_terminations %>% 
+  count(directorate_abbrev, name = "termination_count") %>%
+  slice_max(termination_count, n = 5) %>%
+  arrange(desc(termination_count))
+
+Directorate_table_image <- Directorate_table %>%
+  gt() %>%
+  tab_header(
+    title = "Top 5 NSF Directorates by Grant Terminations",
+    subtitle = "Count of terminated NSF grants by directorate"
+  ) %>%
+  cols_label(
+    directorate_abbrev = "Directorate",
+    termination_count = "Number of Terminated Grants"
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  )
+
+gtsave(
+  Directorate_table_image,
+  "Directorate_table.png"
+)
 ```
 
 ## TESTS:
@@ -290,7 +492,7 @@ summary(anova_result)
 kruskal.test(usaspending_obligated ~ directorate_abbrev, data = Directorate_money_table)
 ```
 
-# ***Q3: Did wich private or public organizations had suffered more from grant terminations?***
+# ***Q3: Did which private or public organizations had suffered more from grant terminations?***
 
 ### ADD HYPOTHOSISE HERE
 
@@ -496,13 +698,126 @@ NSF_data <- nsf_terminations %>%
 ## DATA VIZ 4: PUBLIC VS PRIVATE
 
 ```{r}
+library(ggplot2)
+library(dplyr)
+library(scales)
 
+# Summarize total money lost by public/private institution type
+Private_Public_Money_Lost <- NSF_data %>%
+  filter(
+    !is.na(privatePublic),
+    !is.na(usaspending_obligated)
+  ) %>%
+  group_by(privatePublic) %>%
+  summarise(
+    total_money_lost = sum(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Bar plot
+ggplot(Private_Public_Money_Lost,
+       aes(x = privatePublic,
+           y = total_money_lost,
+           fill = privatePublic)) +
+  geom_col(width = 0.65) +
+  geom_text(
+    aes(label = comma(total_money_lost)),
+    vjust = -0.3,
+    fontface = "bold",
+    color = "#9c4f00",
+    size = 4
+  ) +
+  scale_y_continuous(
+    labels = comma,
+    expand = expansion(mult = c(0, 0.12))
+  ) +
+  scale_fill_manual(
+    values = c(
+      "private" = "#f47c00",
+      "public" = "#fee6b8"
+    )
+  ) +
+  labs(
+    title = "Total NSF Grant Money Terminated by Institution Type",
+    subtitle = "Public and Private Institutions Compared",
+    x = "Institution Type",
+    y = "Total Money Lost"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(
+      face = "bold",
+      hjust = 0.5,
+      size = 16,
+      color = "#9c4f00"
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5,
+      size = 13,
+      color = "#e66100"
+    ),
+    axis.title = element_text(
+      face = "bold",
+      size = 12,
+      color = "#9c4f00"
+    ),
+    axis.text = element_text(
+      size = 11,
+      color = "#9c4f00"
+    ),
+    legend.position = "none"
+  )
 ```
 
 ## TABLE:
 
 ```{r}
+library(dplyr)
+library(gt)
 
+PrivatePublic_money_table <- NSF_data %>%
+  filter(
+    !is.na(privatePublic),
+    !is.na(usaspending_obligated)
+  ) %>%
+  group_by(privatePublic) %>%
+  summarise(
+    Number_of_Terminated_Grants = n(),
+    Total_Money_Lost = sum(usaspending_obligated, na.rm = TRUE),
+    Average_Money_Lost_Per_Grant = mean(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Total_Money_Lost))
+PrivatePublic_money_table_image <- PrivatePublic_money_table %>%
+  gt() %>%
+  tab_header(
+    title = "NSF Grant Money Lost by Institution Type",
+    subtitle = "Comparison of public and private institutions"
+  ) %>%
+  cols_label(
+    privatePublic = "Institution Type",
+    Number_of_Terminated_Grants = "Number of Terminated Grants",
+    Total_Money_Lost = "Total Money Lost",
+    Average_Money_Lost_Per_Grant = "Average Money Lost Per Grant"
+  ) %>%
+  fmt_currency(
+    columns = c(Total_Money_Lost, Average_Money_Lost_Per_Grant),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  )
+
+gtsave(
+  PrivatePublic_money_table_image,
+  "PrivatePublic_money_table.png"
+)
 ```
 
 ## TESTS:
@@ -531,8 +846,6 @@ count_table <- table(NSF_data$privatePublic)
 chisq.test(count_table)
 ```
 
-***Note: Redo the graph on this one im not happy with it***
-
 # ***Q4: Who suffered the most Illinois, Wisconsin, Missouri, Kentucky,and Indiana from grant terminations/who lost the most money?***
 
 ### ADD HYPOTHOSISE HERE
@@ -541,7 +854,7 @@ chisq.test(count_table)
 
 ```{r}
 library(dplyr)
-df <- nsf_terminations %>% 
+df_IL <- nsf_terminations %>% 
   filter(org_state == c("MO", "KY", "IN", "WI", "IL"))
 #this creates a data frame that is only foucosuing on near by states that surround illnois to lead to a future comaparison. 
 ```
@@ -596,7 +909,54 @@ ggplot(df_sum, aes(x = org_state, y = total_loss, fill = org_state)) +
 ## TABLE:
 
 ```{r}
+library(dplyr)
+library(gt)
+library(scales)
 
+StatesMoney_table <- nsf_terminations %>%
+  filter(
+    org_state %in% c("MO", "KY", "IN", "WI", "IL"),
+    !is.na(usaspending_obligated)
+  ) %>%
+  group_by(org_state) %>%
+  summarise(
+    Total_Money_Lost = sum(usaspending_obligated, na.rm = TRUE),
+    Number_of_Terminated_Grants = n(),
+    Average_Money_Lost = mean(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Total_Money_Lost))
+
+StatesMoney_table_image <- StatesMoney_table %>%
+  gt() %>%
+  tab_header(
+    title = "NSF Grant Money Terminated by State",
+    subtitle = "Missouri, Kentucky, Indiana, Wisconsin, and Illinois"
+  ) %>%
+  cols_label(
+    org_state = "State",
+    Total_Money_Lost = "Total Money Lost",
+    Number_of_Terminated_Grants = "Number of Terminated Grants",
+    Average_Money_Lost = "Average Money Lost"
+  ) %>%
+  fmt_currency(
+    columns = c(Total_Money_Lost, Average_Money_Lost),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  )
+
+gtsave(
+  StatesMoney_table_image,
+  "StatesMoney_table.png"
+)
 ```
 
 ## TESTS:
@@ -690,7 +1050,70 @@ ggplot(
 ## TABLE:
 
 ```{r}
+library(dplyr)
+library(gt)
 
+# Step 1: Create California vs Not California groups
+dfcali <- nsf_terminations %>% 
+  mutate(caliNotCali = ifelse(org_state == "CA", "Cali", "Not Cali"))
+
+# Step 2: Summarize the data for the table
+dfcali_table <- dfcali %>%
+  filter(
+    !is.na(caliNotCali),
+    !is.na(usaspending_obligated)
+  ) %>%
+  group_by(caliNotCali) %>%
+  summarise(
+    Number_of_Terminated_Grants = n(),
+    Total_Money_Lost = sum(usaspending_obligated, na.rm = TRUE),
+    Average_Money_Lost_Per_Grant = mean(usaspending_obligated, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Total_Money_Lost))
+
+# Step 3: Make the table image
+dfcali_table_image <- dfcali_table %>%
+  gt() %>%
+  tab_header(
+    title = "NSF Grant Terminations: California vs. Not California",
+    subtitle = "Comparison of terminated grants, total money lost, and average money lost per grant"
+  ) %>%
+  cols_label(
+    caliNotCali = "Group",
+    Number_of_Terminated_Grants = "Number of Terminated Grants",
+    Total_Money_Lost = "Total Money Lost",
+    Average_Money_Lost_Per_Grant = "Average Money Lost Per Grant"
+  ) %>%
+  fmt_currency(
+    columns = c(Total_Money_Lost, Average_Money_Lost_Per_Grant),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold", color = "#9c4f00"),
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_style(
+    style = cell_text(color = "#e66100"),
+    locations = cells_title(groups = "subtitle")
+  ) %>%
+  tab_options(
+    table.width = px(900),
+    table.font.size = px(14),
+    data_row.padding = px(8),
+    heading.title.font.size = px(22),
+    heading.subtitle.font.size = px(14),
+    column_labels.font.weight = "bold"
+  )
+
+# Step 4: Save as image
+gtsave(
+  dfcali_table_image,
+  "dfcali_table.png",
+  vwidth = 1200,
+  vheight = 500
+)
 ```
 
 ## TESTS:
