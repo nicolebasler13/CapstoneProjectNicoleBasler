@@ -1138,30 +1138,6 @@ count_table <- table(dfcali$caliNotCali)
 chisq.test(count_table)
 ```
 
-# ***Q6: Modern data (possibly)***
+## 
 
-### ADD HYPOTHOSISE HERE
-
-## CLEANED/FOCOUSED VERSION
-
-## DATA VIZ 7:
-
-## DATA VIZ 8:
-
-## TABLE:
-
-## TESTS:
-
-# ***Q7: any other questions***
-
-### ADD HYPOTHOSISE HERE
-
-## CLEANED/FOCOUSED VERSION
-
-## DATA VIZ 9:
-
-## DATA VIZ 10:
-
-## TABLE:
-
-## TESTS:
+## 
